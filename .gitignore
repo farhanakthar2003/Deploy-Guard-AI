@@ -1,0 +1,19 @@
+# Node modules - never push these
+node_modules/
+*/node_modules/
+
+# Environment files - never push these (contains secrets)
+.env
+*/.env
+
+# Build outputs
+dist/
+*/dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
