@@ -19,7 +19,7 @@ git clone https://github.com/yourusername/deployguard.git
 ### 2. Setup environment variables
 Create .env files in backend/, frontend/ and agents/ folders.
 
-Backend .env:
+## Backend .env:
 PORT=4000
 SUPABASE_URL=your_supabase_url
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
