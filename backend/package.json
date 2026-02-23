@@ -12,6 +12,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@langchain/core": "^0.3.40",
+    "@langchain/langgraph": "^0.2.60",
     "@supabase/supabase-js": "^2.97.0",
     "axios": "^1.13.5",
     "cors": "^2.8.6",

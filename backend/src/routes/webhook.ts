@@ -1,10 +1,8 @@
 import { Router, Request, Response } from "express";
 import { verifyWebhookSignature } from "../middleware/verifyWebhook";
 import { supabase } from "../services/supabaseService";
-import { exec } from "child_process";
-import path from "path";
 import { decrypt } from "../services/encryptionService";
-
+import { runDeployGuardPipeline } from "../../../agents/src/index";
 
 const router = Router();
 
@@ -49,8 +47,10 @@ router.post("/", verifyWebhookSignature, async (req: Request, res: Response) => 
   // Respond to GitHub immediately
   res.status(200).json({ message: "Webhook received — DeployGuard analysis started" });
 
-  // Build context to pass to agents
-  const context = JSON.stringify({
+  console.log(`Triggering agent pipeline for PR #${prNumber}...`);
+
+  // Run pipeline directly — no subprocess needed
+  runDeployGuardPipeline({
     repo_owner: repoOwner,
     repo_name: repoName,
     repo_id: repo.id,
@@ -62,34 +62,9 @@ router.post("/", verifyWebhookSignature, async (req: Request, res: Response) => 
     pr_description: prDescription,
     author,
     pat: decrypt(repo.pat)
+  }).catch((err) => {
+    console.error("Pipeline error:", err);
   });
-
-  // Path to agents entry point
-  const agentEntry = path.resolve(__dirname, "../../../agents/src/index.ts");
-
-  console.log(`Triggering agent pipeline for PR #${prNumber}...`);
-
-  const command = `npx ts-node "${agentEntry}"`;
-
-  // Run agents as a subprocess
-  exec(
-  command,
-  {
-    env: {
-      ...process.env,
-      DEPLOY_GUARD_CONTEXT: context
-    },
-    timeout: 300000,
-    cwd: path.resolve(__dirname, "../../../agents")
-  },
-  (err, stdout, stderr) => {
-    if (err) {
-      console.error("Agent pipeline error:", stderr || err.message);
-    } else {
-      console.log("Agent pipeline completed:", stdout);
-    }
-  }
-);
 });
 
 export default router;
